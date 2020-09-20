@@ -47,7 +47,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 db = SQL("sqlite:///dogs.db")
 
 # base url
-BASE_URL = "http://api.doggo.fans/"
+BASE_URL = "https://api.doggo.fans/"
 Session(app)
 
 @app.route("/", methods=["GET"])
