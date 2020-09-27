@@ -50,16 +50,30 @@ db = SQL("sqlite:///dogs.db")
 BASE_URL = "https://api.doggo.fans/"
 Session(app)
 
+# renders all useful links
 @app.route("/", methods=["GET"])
 def index():
     """Doggo App"""
-    dogURL = url_for('static', filename='dogs/n02087394-Rhodesian_ridgeback/n02087394_36.jpg')
+    pathToDogs = os.path.join(app.root_path + "/static/dogs")
 
-    dog = "D:\projects/api_doggo\static\dogs/n02087394-Rhodesian_ridgeback/n02087394_36.jpg"
+    links = []
+    randomDog = BASE_URL + 'randomDog/' + "13"
+    links.append(randomDog)
+    for root, dirs, files in os.walk(pathToDogs):
+        for dir in dirs:
+            dirStr = re.split(r'[-_]', dir)
+            breed = ""
+            for i, str in enumerate(dirStr):
+                if i == (len(dirStr) - 1):
+                    breed = breed + dirStr[i].capitalize()
+                elif i != 0:
+                    breed = breed + dirStr[i].capitalize() + "_"
+            url = BASE_URL + 'breed/' + breed
+            links.append(url)
 
-    return render_template('index.html', img=dogURL)
+    return render_template('index.html', pathToDogs=pathToDogs, links=links)
 
-# add returning multiple dogs
+# returns links to a number of random doggos
 @app.route("/randomDog/<n>", methods=["GET"])
 def randomDog(n):
     dogs = []
@@ -76,6 +90,57 @@ def randomDog(n):
         dogs.append(URL)
 
     return jsonify(dogs)
+
+# Returns a random picture of a breed passed in the argument
+@app.route("/breed/<s>", methods=["GET"])
+def breed(s):
+    pathToDogs = os.path.join(app.root_path + "/static/dogs")
+
+    correctFolder = ""
+    for root, dirs, files in os.walk(pathToDogs):
+        for dir in dirs:
+            dirStr = re.split(r'[-_]', dir)
+            breed = ""
+            for i, str in enumerate(dirStr):
+                if i == (len(dirStr) - 1):
+                    breed = breed + dirStr[i].capitalize()
+                elif i != 0:
+                    breed = breed + dirStr[i].capitalize() + "_"
+            if breed == s:
+                correctFolder = dir
+
+    randomFile = random.choice(os.listdir(pathToDogs+'/'+correctFolder))
+    pathToFile = correctFolder+'/'+randomFile
+
+    url = BASE_URL + "img/" + pathToFile
+
+    return redirect(url)
+
+# returns a page with a random doggo img
+# different img on refresh
+@app.route("/breed/view/<s>", methods=["GET"])
+def breedView(s):
+    pathToDogs = os.path.join(app.root_path + "/static/dogs")
+
+    correctFolder = ""
+    for root, dirs, files in os.walk(pathToDogs):
+        for dir in dirs:
+            dirStr = re.split(r'[-_]', dir)
+            breed = ""
+            for i, str in enumerate(dirStr):
+                if i == (len(dirStr) - 1):
+                    breed = breed + dirStr[i].capitalize()
+                elif i != 0:
+                    breed = breed + dirStr[i].capitalize() + "_"
+            if breed == s:
+                correctFolder = dir
+
+    randomFile = random.choice(os.listdir(pathToDogs+'/'+correctFolder))
+    pathToFile = correctFolder+'/'+randomFile
+
+    url = BASE_URL + "img/" + pathToFile
+
+    return render_template('breedView.html', img=url)
 
 @app.route("/img/<path:path>", methods=["GET"])
 def displayDog(path):

@@ -3,7 +3,11 @@
 
   </head>
   <body>
-    <img src="{{ img }}"/>
+    <p> {{pathToDogs1}}</p>
+    <p> {{pathToDogs}}</p>
+    {% for link in links: %}
+      <a href="{{link}}"><p>{{link}}</p></a>
+    {% endfor %}
   </body>
 
 </html>
